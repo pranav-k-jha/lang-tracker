@@ -1,0 +1,14 @@
+name: french-tracker-env
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10
+  - pandas
+  - plotly
+  - scikit-learn
+  - streamlit
+  - seaborn
+  - notebook
+  - ipykernel
+  - pytest
