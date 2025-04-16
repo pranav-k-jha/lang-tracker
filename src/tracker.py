@@ -6,13 +6,33 @@ from datetime import datetime
 
 class FrenchVocabTracker:
     def __init__(self, data_path='data/vocab.csv'):
-        self.df = pd.read_csv(data_path, parse_dates=['date'])
+        # Create directory if not exists
+        os.makedirs(os.path.dirname(data_path), exist_ok=True)
+
+        # Initialize empty DataFrame structure
+        self.columns = ['date', 'words_learned', 'notes']
+
+        # Create file with headers if not exists
+        if not os.path.exists(data_path):
+            pd.DataFrame(columns=self.columns).to_csv(data_path, index=False)
+
+        try:
+            self.df = pd.read_csv(data_path, parse_dates=['date'])
+        except pd.errors.EmptyDataError:
+            self.df = pd.DataFrame(columns=self.columns)
+
         self._preprocess_data()
 
     def _preprocess_data(self):
-        self.df['cumulative_words'] = self.df['words_learned'].cumsum()
-        self.df['week'] = self.df['date'].dt.isocalendar().week
-        self.df['streak'] = self._calculate_streaks()
+        if not self.df.empty:
+            self.df['cumulative_words'] = self.df['words_learned'].cumsum()
+            self.df['week'] = self.df['date'].dt.isocalendar().week
+            self.df['streak'] = self._calculate_streaks()
+        else:
+            # Add empty columns if no data exists
+            self.df['cumulative_words'] = pd.Series(dtype='int')
+            self.df['week'] = pd.Series(dtype='int')
+            self.df['streak'] = pd.Series(dtype='int')
 
     def _calculate_streaks(self):
         streaks = []
