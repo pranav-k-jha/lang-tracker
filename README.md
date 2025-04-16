@@ -82,4 +82,3 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?logo=linkedin&logoColor=white)](https://www.linkedin.com/in/yourprofile/)
 [![Email](https://img.shields.io/badge/Email-D14836?logo=gmail&logoColor=white)](mailto:youremail@domain.com)
-# lang-tracker
