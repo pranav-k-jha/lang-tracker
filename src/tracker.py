@@ -123,3 +123,107 @@ class FrenchVocabTracker:
             'prediction_date': pred_date.strftime('%Y-%m-%d'),
             'confidence': conf
         }
+
+    def analyze_learning_intensity(self):
+        """
+        Analyze learning intensity and provide insights
+
+        Returns:
+        - Average words per learning day
+        - Most productive week
+        - Learning consistency score
+        """
+        if self.df.empty:
+            return {
+                'avg_words_per_day': 0,
+                'most_productive_week': None,
+                'consistency_score': 0
+            }
+
+        # Average words per learning day
+        learning_days = self.df[self.df['words_learned'] > 0]
+        avg_words = learning_days['words_learned'].mean(
+        ) if not learning_days.empty else 0
+
+        # Most productive week
+        weekly_productivity = learning_days.groupby(
+            'week')['words_learned'].sum()
+        most_productive_week = weekly_productivity.idxmax(
+        ) if not weekly_productivity.empty else None
+
+        # Consistency score (based on regularity of learning)
+        total_days = (self.df['date'].max() - self.df['date'].min()).days + 1
+        learning_days_count = len(learning_days)
+        consistency_score = (learning_days_count /
+                             total_days) * 100 if total_days > 0 else 0
+
+        return {
+            'avg_words_per_day': round(avg_words, 1),
+            'most_productive_week': most_productive_week,
+            'consistency_score': round(consistency_score, 1)
+        }
+
+    def analyze_vocabulary_diversity(self):
+        """
+        Analyze vocabulary diversity through notes
+
+        Returns:
+        - Unique note categories
+        - Most frequent note categories
+        """
+        if self.df.empty or self.df['notes'].isna().all():
+            return {
+                'unique_categories': 0,
+                'top_categories': []
+            }
+
+        # Remove empty notes and split into categories
+        notes = self.df['notes'].dropna()
+        categories = notes.str.split(',').explode().str.strip()
+
+        # Count and rank categories
+        category_counts = categories.value_counts()
+
+        return {
+            'unique_categories': len(category_counts),
+            'top_categories': category_counts.head(3).to_dict()
+        }
+
+    def analyze_learning_time(self):
+        """
+        Analyze learning time of day patterns
+
+        Returns:
+        - Peak learning hours
+        - Learning time distribution
+        """
+        if self.df.empty:
+            return {
+                'peak_hours': None,
+                'time_distribution': {}
+            }
+
+        # Assuming timestamp is added during entry
+        # You might want to modify add_entry to include timestamp
+        self.df['hour'] = pd.to_datetime(self.df['date']).dt.hour
+        hour_counts = self.df.groupby('hour')['words_learned'].sum()
+
+        peak_hours = hour_counts.nlargest(2).index.tolist()
+
+        return {
+            'peak_hours': peak_hours,
+            'time_distribution': hour_counts.to_dict()
+        }
+
+    def get_advanced_insights(self):
+        """
+        Compile all advanced insights
+
+        Returns:
+        - Comprehensive learning analytics
+        """
+        return {
+            'learning_intensity': self.analyze_learning_intensity(),
+            'vocabulary_diversity': self.analyze_vocabulary_diversity(),
+            'learning_time': self.analyze_learning_time()
+        }
