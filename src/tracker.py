@@ -67,8 +67,16 @@ class FrenchVocabTracker:
             'words_learned': [words_learned],
             'notes': [notes]
         })
+
+        # Append
         self.df = pd.concat([self.df, new_row], ignore_index=True)
+        # Re‑cast date column to datetime
+        self.df['date'] = pd.to_datetime(self.df['date'])
+        # Recompute cumulative, week, streak
         self._preprocess_data()
+
+        # Save to CSV
+        self.df.to_csv('data/vocab.csv', index=False)
 
     def plot_progress(self):
         fig = px.line(
@@ -85,7 +93,7 @@ class FrenchVocabTracker:
         base = {
             'current_words': self.get_current_words(),
             'daily_rate': 0,
-            'prediction_date': "Insufficient data 📉",
+            'prediction_date': "Insufficient data ",
             'confidence': 0
         }
 
