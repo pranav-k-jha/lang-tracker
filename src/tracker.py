@@ -2,6 +2,7 @@ import pandas as pd
 import plotly.express as px
 from sklearn.linear_model import LinearRegression
 from datetime import datetime
+import os
 
 
 class FrenchVocabTracker:
