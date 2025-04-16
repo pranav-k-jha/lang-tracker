@@ -10,15 +10,25 @@ def main():
 
     col1, col2, col3 = st.columns(3)
     with col1:
-        st.metric("Total Words Learned",
-                  tracker.df['cumulative_words'].iloc[-1])
+        current_words = tracker.get_current_words()
+        st.metric("Total Words Learned", current_words)
+
     with col2:
-        st.metric("Current Streak", f"{tracker.df['streak'].iloc[-1]} 🔥")
+        current_streak = tracker.get_current_streak()
+        st.metric("Current Streak",
+                  f"{current_streak} 🔥" if current_streak > 0 else "No active streak")
+
     with col3:
         prediction = tracker.predict_fluency()
-        st.metric("Estimated Fluency Date", prediction['prediction_date'])
-
-    st.plotly_chart(tracker.plot_progress(), use_container_width=True)
+        if prediction['confidence'] > 0.3:
+            st.metric("Estimated Fluency Date", prediction['prediction_date'])
+        else:
+            st.warning(
+                f"Prediction Unavailable: {prediction['prediction_date']}")
+    if not tracker.df.empty:
+        st.plotly_chart(tracker.plot_progress(), use_container_width=True)
+    else:
+        st.info("📊 Add your first entry to see progress visualizations!")
 
     with st.expander("Add New Entry"):
         words = st.number_input("Words Learned Today", min_value=1)
